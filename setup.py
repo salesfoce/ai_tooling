@@ -51,7 +51,7 @@ def rainbow_ascii():
         time.sleep(0.05)
 
 def debug_prints():
-    slow_print(f"{COLORS['cyan']}Connecting to external server...{COLORS['end']}")
+    slow_print(f"{COLORS['cyan']} Connecting to external server...{COLORS['end']}")
     time.sleep(0.3)
     for i in range(4):
         log = random.choice(LOGS)
