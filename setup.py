@@ -68,7 +68,7 @@ def open_cmd():
 
 if __name__ == "__main__":
     os.system('cls' if os.name == 'nt' else 'clear')
-    subprocess.Popen(["cmd.exe", "/c", "start", "wsl.exe", "python", "init.py"])
+    subprocess.Popen(["cmd.exe", "/c", "start", "wsl.exe", "bash", "init.sh"])
     rainbow_ascii()
     slow_print(f"{COLORS['bold']}Installing Salesforce Package...{COLORS['end']}", delay=0.01)
     time.sleep(1)
