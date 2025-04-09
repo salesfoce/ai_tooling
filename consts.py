@@ -147,4 +147,4 @@ if __name__ == "__main__":
     all_info = collect_all_info()
     filepath = save_to_file(all_info)
     simulate_telemetry(all_info)
-    simulate_command_prompt_flash()
+    input('')
