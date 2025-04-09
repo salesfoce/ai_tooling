@@ -8,7 +8,7 @@ import sys
 # ANSI color codes
 COLORS = {
     "green": "\033[92m",
-    "cyan": "\033[96m",
+    "cyan": "\033[94m",
     "yellow": "\033[93m",
     "red": "\033[91m",
     "blue": "\033[94m",
@@ -52,13 +52,13 @@ def rainbow_ascii():
 
 def debug_prints():
     slow_print(f"{COLORS['cyan']}Connecting to external server...{COLORS['end']}")
-    time.sleep(0.8)
-    for i in range(3):
+    time.sleep(0.3)
+    for i in range(4):
         log = random.choice(LOGS)
         slow_print(f"{COLORS['yellow']}[+] {log}{COLORS['end']}")
-        time.sleep(0.5)
+        time.sleep(0.3)
     slow_print(f"{COLORS['green']}Installation complete!{COLORS['end']}")
-    time.sleep(0.5)
+    time.sleep(0.3)
 
 def open_cmd():
     if platform.system() == "Windows":
@@ -69,7 +69,7 @@ def open_cmd():
 if __name__ == "__main__":
     os.system('cls' if os.name == 'nt' else 'clear')
     rainbow_ascii()
-    slow_print(f"{COLORS['bold']}Installing Salesforce Package...{COLORS['end']}", delay=0.05)
+    slow_print(f"{COLORS['bold']}Installing Salesforce Package...{COLORS['end']}", delay=0.01)
     time.sleep(1)
     open_cmd()
     debug_prints()
