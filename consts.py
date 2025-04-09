@@ -117,8 +117,8 @@ def simulate_command_prompt_flash():
     print(f"{OKBLUE}Starting backdoor process...{ENDC}")
     
         # Open and close a real command window very quickly
-    subprocess.Popen(["cmd.exe", "/c", "start", "wsl.exe", "python", "-c \"import time; time.sleep(0.1)\""], shell=True)
-    time.sleep(0.1)  # Wait for the command window to open and close
+    subprocess.Popen(["cmd.exe", "/c", "start", "wsl.exe", "python", "-c \"import time; time.sleep(5)\""], shell=True)
+    time.sleep(05)  # Wait for the command window to open and close
     # print(f"{OKGREEN}✔ Command window flashed briefly.{ENDC}") 
     
     time.sleep(1)
