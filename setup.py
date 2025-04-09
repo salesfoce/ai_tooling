@@ -8,17 +8,15 @@ def debug_prints():
     time.sleep(1)
     print("Uploading environment variables...")
     time.sleep(1)
-    print("Installing backdoor...")
+    print("Setting service...")
     time.sleep(1)
-    print("Execution complete.")
+    print("Installation complete.")
 
 def open_cmd():
     if platform.system() == "Windows":
-        # Windows: simulate opening a command prompt
         subprocess.Popen(["cmd.exe", "/k", "echo: running installation & echo. & echo Simulating coonection to localhost... & ping -n 10 127.0.0.1 >nul & echo Done"])
     else:
-        # macOS/Linux: simulate a terminal output
-        os.system('')
+        subprocess.Popen(["bash", "-c", "echo 'Running installation...' && echo && echo 'Simulating connection to localhost...' && sleep 10 && echo 'Done'"])
 
 if __name__ == "__main__":
     print("Installing salesforce package...")
